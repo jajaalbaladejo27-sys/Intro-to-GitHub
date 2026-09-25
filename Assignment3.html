@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git & GitHub Advanced Assignment Portfolio</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        neon: {
+                            pink: '#ff007f',
+                            magenta: '#e60067',
+                            blush: '#ffb6c1',
+                            glow: '#ff1493',
+                            dark: '#0e020b',
+                            card: '#1d0517',
+                            terminal: '#12020e'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #0e020b;
+            color: #ffb6c1;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism styling */
+        .glass-panel {
+            background: rgba(29, 5, 23, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 0, 127, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(230, 0, 103, 0.15);
+        }
+
+        .glass-panel-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-panel-hover:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 0, 127, 0.6);
+            box-shadow: 0 12px 40px 0 rgba(255, 20, 147, 0.3);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0e020b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #e60067;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff007f;
+        }
+
+        /* Particles backdrop */
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff 0%, #ffb6c1 40%, #ff007f 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .neon-glow-btn {
+            box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+        }
+
+        .neon-glow-btn:hover {
+            box-shadow: 0 0 25px rgba(255, 0, 127, 0.7);
+        }
+
+        .tab-active {
+            background: linear-gradient(135deg, #e60067 0%, #ff007f 100%);
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.5);
+            border-color: rgba(255, 182, 193, 0.6) !important;
+        }
+
+        /* Terminal Prompt animation */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .cursor-blink {
+            animation: blink 1s infinite;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen selection:bg-neon-pink selection:text-white">
+
+    <!-- Background Particles Canvas -->
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="relative z-10 flex flex-col min-h-screen">
+        
+        <header class="sticky top-0 z-50 glass-panel border-b border-pink-900/40 px-4 lg:px-8 py-3.5">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('task1')">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-neon-magenta to-neon-pink flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-pink-500/40">
+                        <i class="fa-solid fa-code-branch"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold tracking-tight gradient-text">Git & GitHub</span>
+                        <span class="text-xs block text-neon-pink font-mono">Advanced Interactive Assignment</span>
+                    </div>
+                </div>
+
+                <!-- Main Navigation Tabs -->
+                <nav class="flex items-center space-x-1 sm:space-x-2 bg-neon-dark/80 p-1.5 rounded-2xl border border-pink-900/50 overflow-x-auto max-w-full">
+                    <button onclick="switchTab('task1')" id="tab-btn-task1" class="tab-btn tab-active px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-pink-200 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-book-open"></i> Task 1: Theory
+                    </button>
+                    <button onclick="switchTab('task2')" id="tab-btn-task2" class="tab-btn px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-pink-200 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-user-gear"></i> Task 2: Setup
+                    </button>
+                    <button onclick="switchTab('task3')" id="tab-btn-task3" class="tab-btn px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-pink-200 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-folder-plus"></i> Task 3: Repo
+                    </button>
+                    <button onclick="switchTab('task4')" id="tab-btn-task4" class="tab-btn px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-pink-200 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-desktop"></i> Task 4: Local Git
+                    </button>
+                    <button onclick="switchTab('terminal')" id="tab-btn-terminal" class="tab-btn px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl text-pink-200 hover:text-white transition flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-terminal text-neon-pink"></i> Git Simulator
+                    </button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Main Content View Container -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-8 py-8">
+            
+            <section id="view-task1" class="space-y-12 animate-fadeIn">
+                <!-- Hero Header -->
+                <div class="glass-panel rounded-3xl p-8 lg:p-12 relative overflow-hidden">
+                    <div class="max-w-3xl space-y-4">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-950/80 border border-pink-700/50 text-neon-pink text-xs font-semibold">
+                            <span class="w-2 h-2 rounded-full bg-neon-pink animate-ping"></span>
+                            TASK 1: CONCEPTUAL FOUNDATIONS
+                        </div>
+                        <h1 class="text-3xl sm:text-5xl font-extrabold text-white leading-tight">
+                            Introduction to <span class="gradient-text">Git & GitHub</span>
+                        </h1>
+                        <p class="text-pink-200/90 text-base sm:text-lg leading-relaxed">
+                            Understanding version control, distributed architecture, and the operational differences between local Git versioning and GitHub online collaboration.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Git vs GitHub Detailed Comparison -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Git Card -->
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl space-y-4 border-l-4 border-l-neon-pink">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-2xl bg-neon-magenta/20 border border-neon-pink/40 flex items-center justify-center text-neon-pink text-2xl">
+                                <i class="fa-solid fa-terminal"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-white">What is Git?</h3>
+                                <span class="text-xs font-mono text-neon-pink">Local Distributed VCS</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-pink-200/80 leading-relaxed">
+                            Git is a free, open-source distributed version control system installed on your local machine. Created by Linus Torvalds in 2005, it tracks changes in your source files over time, keeping a complete history locally without requiring internet connectivity.
+                        </p>
+                        <div class="pt-2">
+                            <h4 class="text-xs font-mono text-pink-400 font-bold uppercase tracking-wider mb-2">Key Properties:</h4>
+                            <ul class="space-y-2 text-xs text-pink-200/90 font-mono">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-neon-pink"></i> Command-line utility operating on disk</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-neon-pink"></i> Creates DAG (Directed Acyclic Graph) history</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-neon-pink"></i> Completely offline capabilities</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- GitHub Card -->
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl space-y-4 border-l-4 border-l-pink-400">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-2xl bg-pink-500/20 border border-pink-400/40 flex items-center justify-center text-pink-300 text-2xl">
+                                <i class="fa-brands fa-github"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-white">What is GitHub?</h3>
+                                <span class="text-xs font-mono text-pink-300">Cloud Platform & Social Coding</span>
+                            </div>
+                        </div>
+                        <p class="text-sm text-pink-200/80 leading-relaxed">
+                            GitHub is a cloud platform that hosts Git repositories online. It provides a visual graphical user interface (GUI), web-based file browsing, issue tracking, continuous integration (CI/CD via Actions), pull requests, and multi-developer collaboration toolsets.
+                        </p>
+                        <div class="pt-2">
+                            <h4 class="text-xs font-mono text-pink-400 font-bold uppercase tracking-wider mb-2">Key Properties:</h4>
+                            <ul class="space-y-2 text-xs text-pink-200/90 font-mono">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-pink-300"></i> Online centralized remote host</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-pink-300"></i> Pull Requests, Discussions & Code Reviews</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-pink-300"></i> Built-in web hosting via GitHub Pages</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Architecture Flowchart -->
+                <div class="glass-panel p-8 rounded-3xl space-y-6">
+                    <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-diagram-project text-neon-pink"></i> Git Local-to-Remote Lifecycle Architecture
+                    </h3>
+                    <p class="text-xs text-pink-300">Click on any stage below to inspect how file states transition across zones:</p>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div onclick="explainZone('Working Directory: Where files are created or modified before staging.')" class="p-5 rounded-2xl bg-neon-dark/90 border border-pink-900/60 hover:border-neon-pink cursor-pointer transition text-center space-y-2">
+                            <span class="text-xs font-mono text-pink-400">STAGE 1</span>
+                            <h4 class="text-base font-bold text-white">Working Directory</h4>
+                            <p class="text-xs text-pink-200/70">Unstaged local edits</p>
+                        </div>
+                        <div onclick="explainZone('Staging Area (Index): Buffer zone where git add collects snapshot files.')" class="p-5 rounded-2xl bg-neon-dark/90 border border-pink-900/60 hover:border-neon-pink cursor-pointer transition text-center space-y-2">
+                            <span class="text-xs font-mono text-neon-pink">STAGE 2</span>
+                            <h4 class="text-base font-bold text-white">Staging Area</h4>
+                            <p class="text-xs text-pink-200/70">Staged via `git add`</p>
+                        </div>
+                        <div onclick="explainZone('Local Repository: Permanent local history snapshots committed on machine.')" class="p-5 rounded-2xl bg-neon-dark/90 border border-pink-900/60 hover:border-neon-pink cursor-pointer transition text-center space-y-2">
+                            <span class="text-xs font-mono text-pink-400">STAGE 3</span>
+                            <h4 class="text-base font-bold text-white">Local Repo (.git)</h4>
+                            <p class="text-xs text-pink-200/70">Saved via `git commit`</p>
+                        </div>
+                        <div onclick="explainZone('Remote Repository: Online repository hosted on GitHub for global sync.')" class="p-5 rounded-2xl bg-neon-dark/90 border border-pink-900/60 hover:border-neon-pink cursor-pointer transition text-center space-y-2">
+                            <span class="text-xs font-mono text-neon-pink">STAGE 4</span>
+                            <h4 class="text-base font-bold text-white">GitHub Remote</h4>
+                            <p class="text-xs text-pink-200/70">Synced via `git push`</p>
+                        </div>
+                    </div>
+                    <div id="zoneExplanation" class="p-4 rounded-xl bg-pink-950/60 border border-pink-800/40 text-xs text-pink-200 font-mono text-center">
+                        💡 Click a box above to view technical explanation.
+                    </div>
+                </div>
+
+                <!-- Embedded Tutorials & External References -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Video Embed -->
+                    <div class="glass-panel p-6 rounded-3xl space-y-4">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-brands fa-youtube text-red-500"></i> Video Tutorial: Git & GitHub Basics
+                        </h3>
+                        <div class="relative aspect-video rounded-2xl overflow-hidden border border-pink-900/60">
+                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/r8jQ9hVA2qs" title="Git Tutorial" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </div>
+
+                    <!-- Verified References -->
+                    <div class="glass-panel p-6 rounded-3xl space-y-4 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2 mb-3">
+                                <i class="fa-solid fa-bookmark text-neon-pink"></i> Verified Literature References
+                            </h3>
+                            <ul class="space-y-3 text-xs text-pink-200">
+                                <li class="p-3 rounded-xl bg-neon-dark/60 border border-pink-900/50 flex items-center justify-between">
+                                    <span>Official Git Documentation (git-scm.com)</span>
+                                    <a href="https://git-scm.com/doc" target="_blank" class="text-neon-pink hover:underline font-mono">Visit Docs →</a>
+                                </li>
+                                <li class="p-3 rounded-xl bg-neon-dark/60 border border-pink-900/50 flex items-center justify-between">
+                                    <span>GitHub Docs Portal (docs.github.com)</span>
+                                    <a href="https://docs.github.com" target="_blank" class="text-neon-pink hover:underline font-mono">Visit Docs →</a>
+                                </li>
+                                <li class="p-3 rounded-xl bg-neon-dark/60 border border-pink-900/50 flex items-center justify-between">
+                                    <span>Pro Git Book (Chacon & Straub)</span>
+                                    <a href="https://git-scm.com/book/en/v2" target="_blank" class="text-neon-pink hover:underline font-mono">Read Book →</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <button onclick="switchTab('task2')" class="w-full py-3 rounded-xl bg-gradient-to-r from-neon-magenta to-neon-pink hover:opacity-90 text-white font-bold text-sm shadow-lg neon-glow-btn transition">
+                            Proceed to Task 2 Setup <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-task2" class="space-y-8 hidden animate-fadeIn">
+                <div class="glass-panel rounded-3xl p-8 relative overflow-hidden">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-950/80 border border-pink-700/50 text-neon-pink text-xs font-semibold mb-3">
+                        TASK 2: ACCOUNT SETUP & LOCAL GIT CONFIGURATION
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-white">GitHub Account & Git CLI Setup</h2>
+                    <p class="text-pink-200/80 text-sm mt-2">
+                        Configure your global Git environment credentials and review evidence of your setup.
+                    </p>
+                </div>
+
+                <!-- Config Commands Guide -->
+                <div class="glass-panel p-6 rounded-3xl space-y-4">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-terminal text-neon-pink"></i> Local Git Configuration Commands
+                    </h3>
+                    <div class="p-4 rounded-2xl bg-neon-terminal border border-pink-900/60 font-mono text-xs text-pink-300 space-y-2">
+                        <p><span class="text-neon-pink">$</span> git config --global user.name <span class="text-white">"jajaalbaladejo27-sys"</span></p>
+                        <p><span class="text-neon-pink">$</span> git config --global user.email <span class="text-white">"jajaalbaladejo27@gmail.com"</span></p>
+                    </div>
+                </div>
+
+                <!-- Static Screenshots Display Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Terminal Configuration Screenshot Container -->
+                    <div class="glass-panel p-6 rounded-3xl space-y-4">
+                        <h4 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-camera text-neon-pink"></i> Terminal Configuration Screenshot
+                        </h4>
+                        <p class="text-xs text-pink-300">Git config execution in Terminal:</p>
+                        
+                        <!-- Image Display Placeholder -->
+                        <div class="rounded-2xl overflow-hidden border border-pink-900/60 bg-neon-dark/80 min-h-[220px] flex items-center justify-center">
+                            <img src="path/to/your/git-config-screenshot.png" 
+                                 alt="Git Config Terminal Screenshot" 
+                                 onerror="this.onerror=null; this.src='https://placehold.co/800x450/1d0517/ff007f?text=Insert+Git+Config+Screenshot+Here';" 
+                                 class="w-full h-auto object-cover rounded-2xl">
+                        </div>
+                    </div>
+
+                    <!-- GitHub Profile Screenshot Container -->
+                    <div class="glass-panel p-6 rounded-3xl space-y-4">
+                        <h4 class="text-base font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-id-badge text-neon-pink"></i> GitHub Profile Screenshot
+                        </h4>
+                        <p class="text-xs text-pink-300">Logged-in GitHub profile page:</p>
+                        
+                        <!-- Image Display Placeholder -->
+                        <div class="rounded-2xl overflow-hidden border border-pink-900/60 bg-neon-dark/80 min-h-[220px] flex items-center justify-center">
+                            <img src="path/to/your/github-profile-screenshot.png" 
+                                 alt="GitHub Profile Screenshot" 
+                                 onerror="this.onerror=null; this.src='https://placehold.co/800x450/1d0517/ff007f?text=Insert+GitHub+Profile+Screenshot+Here';" 
+                                 class="w-full h-auto object-cover rounded-2xl">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button onclick="switchTab('task3')" class="px-6 py-3 rounded-xl bg-gradient-to-r from-neon-magenta to-neon-pink hover:opacity-90 text-white font-bold text-sm shadow-lg neon-glow-btn transition">
+                        Proceed to Task 3 Repo Setup <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="view-task3" class="space-y-8 hidden animate-fadeIn">
+                <div class="glass-panel rounded-3xl p-8 relative overflow-hidden">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-950/80 border border-pink-700/50 text-neon-pink text-xs font-semibold mb-3">
+                        TASK 3: REPOSITORY CREATION & MANAGEMENT
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-white">Creating "Intro-to-GitHub" Repository</h2>
+                    <p class="text-pink-200/80 text-sm mt-2">
+                        Demonstrating web repository creation, `README.md` initialized docs, and uploading minimum 3 required project files.
+                    </p>
+                </div>
+
+                <!-- Workflow Step List -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="glass-panel p-6 rounded-2xl space-y-2">
+                        <span class="text-xs font-mono text-neon-pink font-bold">STEP 01</span>
+                        <h4 class="text-base font-bold text-white">Create Repository</h4>
+                        <p class="text-xs text-pink-200/70">Named `Intro-to-GitHub` with Public visibility and initialized with a `README.md` file.</p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl space-y-2">
+                        <span class="text-xs font-mono text-neon-pink font-bold">STEP 02</span>
+                        <h4 class="text-base font-bold text-white">Upload Files</h4>
+                        <p class="text-xs text-pink-200/70">Uploaded 3+ required files (`index.html`, code files, and documentation assets).</p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-2xl space-y-2">
+                        <span class="text-xs font-mono text-neon-pink font-bold">STEP 03</span>
+                        <h4 class="text-base font-bold text-white">Commit Changes</h4>
+                        <p class="text-xs text-pink-200/70">Executed commit with meaningful commit message: "Upload initial project files".</p>
+                    </div>
+                </div>
+
+                <!-- Static Screenshots Evidence Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Image Display 1: Creation Screen -->
+                    <div class="glass-panel p-5 rounded-3xl space-y-3">
+                        <h5 class="text-sm font-bold text-white">Repo Creation Screen</h5>
+                        <div class="rounded-2xl overflow-hidden border border-pink-900/60 bg-neon-dark/80 min-h-[160px] flex items-center justify-center">
+                            <img src="path/to/your/repo-create-screenshot.png" 
+                                 alt="Repo Creation Screenshot" 
+                                 onerror="this.onerror=null; this.src='https://placehold.co/600x400/1d0517/ff007f?text=Repo+Creation+Image';" 
+                                 class="w-full h-auto object-cover rounded-2xl">
+                        </div>
+                    </div>
+
+                    <!-- Image Display 2: File Uploading Screen -->
+                    <div class="glass-panel p-5 rounded-3xl space-y-3">
+                        <h5 class="text-sm font-bold text-white">3+ Files Upload Screen</h5>
+                        <div class="rounded-2xl overflow-hidden border border-pink-900/60 bg-neon-dark/80 min-h-[160px] flex items-center justify-center">
+                            <img src="path/to/your/repo-upload-screenshot.png" 
+                                 alt="3+ Files Upload Screenshot" 
+                                 onerror="this.onerror=null; this.src='https://placehold.co/600x400/1d0517/ff007f?text=3%2B+Files+Upload+Image';" 
+                                 class="w-full h-auto object-cover rounded-2xl">
+                        </div>
+                    </div>
+
+                    <!-- Image Display 3: Final Repo Page -->
+                    <div class="glass-panel p-5 rounded-3xl space-y-3">
+                        <h5 class="text-sm font-bold text-white">Final Repo Overview Page</h5>
+                        <div class="rounded-2xl overflow-hidden border border-pink-900/60 bg-neon-dark/80 min-h-[160px] flex items-center justify-center">
+                            <img src="path/to/your/repo-final-screenshot.png" 
+                                 alt="Final Repo Screenshot" 
+                                 onerror="this.onerror=null; this.src='https://placehold.co/600x400/1d0517/ff007f?text=Final+Repo+Overview+Image';" 
+                                 class="w-full h-auto object-cover rounded-2xl">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button onclick="switchTab('task4')" class="px-6 py-3 rounded-xl bg-gradient-to-r from-neon-magenta to-neon-pink hover:opacity-90 text-white font-bold text-sm shadow-lg neon-glow-btn transition">
+                        Proceed to Task 4 Local Git <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="view-task4" class="space-y-8 hidden animate-fadeIn">
+                <div class="glass-panel rounded-3xl p-8 relative overflow-hidden">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-950/80 border border-pink-700/50 text-neon-pink text-xs font-semibold mb-3">
+                        TASK 4: LOCAL GIT WORKFLOW
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-white">Clone, Edit, Commit & Push Workflow</h2>
+                    <p class="text-pink-200/80 text-sm mt-2">
+                        Cloning remote repo locally, making code updates, staging, committing, and pushing back to GitHub.
+                    </p>
+                </div>
+
+                <!-- Command sequence tutorial -->
+                <div class="glass-panel p-6 rounded-3xl space-y-4">
+                    <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-code text-neon-pink"></i> Terminal Execution Command Walkthrough
+                    </h3>
+                    <div class="p-4 rounded-2xl bg-neon-terminal border border-pink-900/60 font-mono text-xs text-pink-200 space-y-3">
+                        <div>
+                            <span class="text-pink-500"># 1. Clone remote repository to local computer</span>
+                            <p class="text-white"><span class="text-neon-pink">$</span> git clone https://github.com/jajaalbaladejo27-sys/Intro-to-GitHub.git</p>
+                        </div>
+                        <div>
+                            <span class="text-pink-500"># 2. Change directory into cloned folder</span>
+                            <p class="text-white"><span class="text-neon-pink">$</span> cd Intro-to-GitHub</p>
+                        </div>
+                        <div>
+                            <span class="text-pink-500"># 3. Create or modify files, then stage changes</span>
+                            <p class="text-white"><span class="text-neon-pink">$</span> git add .</p>
+                        </div>
+                        <div>
+                            <span class="text-pink-500"># 4. Commit changes with a descriptive snapshot message</span>
+                            <p class="text-white"><span class="text-neon-pink">$</span> git commit -m <span class="text-pink-300">"Update local files and add index.html"</span></p>
+                        </div>
+                        <div>
+                            <span class="text-pink-500"># 5. Push committed snapshot back to GitHub</span>
+                            <p class="text-white"><span class="text-neon-pink">$</span> git push origin main</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Static Screenshot Container for Task 4 Terminal -->
+                <div class="glass-panel p-6 rounded-3xl space-y-4">
+                    <h4 class="text-base font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-desktop text-neon-pink"></i> Task 4 Terminal Screenshot
+                    </h4>
+                    <p class="text-xs text-pink-300">Screenshot showing successful `git clone`, `git commit`, and `git push` execution:</p>
+                    
+                    <div class="rounded-2xl overflow-hidden border border-pink-900/60 bg-neon-dark/80 min-h-[250px] flex items-center justify-center">
+                        <img src="path/to/your/local-git-workflow-screenshot.png" 
+                             alt="Task 4 Local Git Workflow Screenshot" 
+                             onerror="this.onerror=null; this.src='https://placehold.co/800x450/1d0517/ff007f?text=Insert+Task+4+Terminal+Screenshot+Here';" 
+                             class="w-full h-auto object-cover rounded-2xl">
+                    </div>
+                </div>
+
+                <div class="flex justify-end">
+                    <button onclick="switchTab('terminal')" class="px-6 py-3 rounded-xl bg-gradient-to-r from-neon-magenta to-neon-pink hover:opacity-90 text-white font-bold text-sm shadow-lg neon-glow-btn transition">
+                        Try Interactive Git Simulator <i class="fa-solid fa-terminal ml-1"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="view-terminal" class="space-y-8 hidden animate-fadeIn">
+                <div class="glass-panel rounded-3xl p-8 relative overflow-hidden">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-950/80 border border-pink-700/50 text-neon-pink text-xs font-semibold mb-3">
+                        INTERACTIVE CLI SIMULATOR
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-white">Live Git Command-Line Simulator</h2>
+                    <p class="text-pink-200/80 text-sm mt-2">
+                        Practice essential Git commands directly in this simulated terminal shell!
+                    </p>
+                </div>
+
+                <div class="glass-panel p-6 rounded-3xl space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-pink-900/50">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-yellow-500 inline-block"></span>
+                            <span class="w-3 h-3 rounded-full bg-green-500 inline-block"></span>
+                            <span class="text-xs font-mono text-pink-300 ml-2">bash - ~/Intro-to-GitHub (main)</span>
+                        </div>
+                        <button onclick="clearTerminal()" class="text-xs font-mono text-pink-400 hover:text-white transition">Clear Terminal</button>
+                    </div>
+
+                    <!-- Terminal Output Box -->
+                    <div id="terminal-output" class="h-80 overflow-y-auto bg-neon-terminal p-4 rounded-2xl border border-pink-900/60 font-mono text-xs text-pink-200 space-y-2">
+                        <p class="text-pink-400">Git Interactive Simulator v1.0.0 initialized.</p>
+                        <p class="text-pink-300">Type <span class="text-neon-pink font-bold">help</span> to view available simulated commands.</p>
+                    </div>
+
+                    <!-- Terminal Command Line Input -->
+                    <form onsubmit="handleTerminalSubmit(event)" class="flex items-center gap-2 bg-neon-dark border border-pink-900/60 p-2 rounded-xl">
+                        <span class="text-neon-pink font-mono text-xs font-bold pl-2">user@pc:~$</span>
+                        <input type="text" id="terminal-input" placeholder="Type a git command (e.g. git status, git add .)..." autocomplete="off" class="flex-1 bg-transparent text-white font-mono text-xs focus:outline-none px-2">
+                        <button type="submit" class="px-4 py-1.5 rounded-lg bg-neon-pink text-white text-xs font-bold font-mono hover:opacity-90">Run</button>
+                    </form>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // Tab Switcher
+        function switchTab(tabId) {
+            const tabs = ['task1', 'task2', 'task3', 'task4', 'terminal'];
+            tabs.forEach(t => {
+                const view = document.getElementById(`view-${t}`);
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (t === tabId) {
+                    view.classList.remove('hidden');
+                    btn.classList.add('tab-active');
+                } else {
+                    view.classList.add('hidden');
+                    btn.classList.remove('tab-active');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Zone Explanation
+        function explainZone(text) {
+            document.getElementById('zoneExplanation').innerText = text;
+        }
+
+        // Terminal Simulator Logic
+        function handleTerminalSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('terminal-input');
+            const output = document.getElementById('terminal-output');
+            const cmd = input.value.trim();
+
+            if (!cmd) return;
+
+            // Output command prompt
+            const cmdLine = document.createElement('p');
+            cmdLine.className = 'text-white font-semibold';
+            cmdLine.innerHTML = `<span class="text-neon-pink">$</span> ${cmd}`;
+            output.appendChild(cmdLine);
+
+            const res = document.createElement('p');
+            res.className = 'text-pink-300 font-mono pl-3 border-l border-neon-pink/40';
+
+            const lower = cmd.toLowerCase();
+            if (lower === 'help') {
+                res.innerHTML = `Available commands:<br>- <span class="text-white">git status</span>: Check state of working directory<br>- <span class="text-white">git add .</span>: Stage modified files<br>- <span class="text-white">git commit -m "msg"</span>: Commit staged files<br>- <span class="text-white">git push</span>: Sync commits to GitHub<br>- <span class="text-white">git log</span>: View commit history<br>- <span class="text-white">clear</span>: Clear terminal screen`;
+            } else if (lower === 'git status') {
+                res.innerHTML = `On branch main<br>Your branch is up to date with 'origin/main'.<br><br>nothing to commit, working tree clean`;
+            } else if (lower.startsWith('git add')) {
+                res.innerHTML = `Staged all modified changes to index. Ready to commit.`;
+            } else if (lower.startsWith('git commit')) {
+                res.innerHTML = `[main 8a4b2f1] ${cmd.split('-m')[1] || 'Commit executed successfully'}<br> 1 file changed, 12 insertions(+)`;
+            } else if (lower === 'git push' || lower === 'git push origin main') {
+                res.innerHTML = `Enumerating objects: 5, done.<br>Counting objects: 100% (5/5), done.<br>To https://github.com/jajaalbaladejo27-sys/Intro-to-GitHub.git<br> * [new branch] main -> main`;
+            } else if (lower === 'git log') {
+                res.innerHTML = `commit 8a4b2f1c9e (HEAD -> main, origin/main)<br>Author: jajaalbaladejo27-sys <jajaalbaladejo27@gmail.com><br>Date: ${new Date().toDateString()}<br><br>    Upload initial project files`;
+            } else if (lower === 'clear') {
+                clearTerminal();
+                input.value = '';
+                return;
+            } else {
+                res.className = 'text-red-400 font-mono';
+                res.innerText = `bash: command not found: ${cmd}. Type 'help' for available commands.`;
+            }
+
+            output.appendChild(res);
+            input.value = '';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearTerminal() {
+            document.getElementById('terminal-output').innerHTML = '<p class="text-pink-400">Terminal cleared. Type <span class="text-neon-pink font-bold">help</span> for assistance.</p>';
+        }
+
+        // Particle Background Logic
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.1;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+            draw() {
+                ctx.fillStyle = `rgba(255, 0, 127, ${this.opacity})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for (let i = 0; i < 40; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+    </script>
+</body>
+</html>
